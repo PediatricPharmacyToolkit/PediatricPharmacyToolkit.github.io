@@ -9,8 +9,8 @@
       html,body{height:100%;margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
       body{
         background-image: url('banner.png');
-        background-size: cover;
-        background-position: center;
+        background-size: contain;
+        background-position: top center;
         background-repeat: no-repeat;
         display:flex;align-items:center;justify-content:center;color:#fff;
       }
@@ -35,21 +35,14 @@
   <body>
     <div class="overlay" aria-hidden="true"></div>
     <main class="container" role="main">
-      <div class="header">
-        <div class="logo">CC</div>
-        <div>
-          <h1>Clinical Calculators</h1>
-          <p class="lead">Quick links to your tools — open any calculator in a new tab.</p>
-        </div>
-      </div>
+      
 
       <section class="grid" style="margin-top:1rem">
         <article class="card">
           <h3>Arginine Calculator</h3>
           <p>Calculate arginine dosing and related parameters.</p>
           <div class="actions">
-            <a class="btn open-link" data-key="arginine" href="https://PediatricPharmacyToolkit.github.io/arginine-calculator" target="_blank" rel="noopener">Open</a>
-            <button class="ghost edit-btn" data-key="arginine">Edit</button>
+            <a class="btn open-link" data-key="arginine" href="arginine-calculator.html" target="_blank" rel="noopener">Open</a>
           </div>
         </article>
 
@@ -57,8 +50,7 @@
           <h3>GIR Calculator</h3>
           <p>Glucose infusion rate helper for pediatric nutrition.</p>
           <div class="actions">
-            <a class="btn open-link" data-key="gir" href="https://PediatricPharmacyToolkit.github.io/gir-calculator" target="_blank" rel="noopener">Open</a>
-            <button class="ghost edit-btn" data-key="gir">Edit</button>
+            <a class="btn open-link" data-key="gir" href="gir-calculator.html" target="_blank" rel="noopener">Open</a>
           </div>
         </article>
 
@@ -66,8 +58,7 @@
           <h3>Hypernatremia Correction Helper</h3>
           <p>Estimate safe sodium correction and fluid requirements.</p>
           <div class="actions">
-            <a class="btn open-link" data-key="hypernatremia" href="https://PediatricPharmacyToolkit.github.io/hypernatremia-calc" target="_blank" rel="noopener">Open</a>
-            <button class="ghost edit-btn" data-key="hypernatremia">Edit</button>
+            <a class="btn open-link" data-key="hypernatremia" href="hypernatremia-calc.html" target="_blank" rel="noopener">Open</a>
           </div>
         </article>
 
@@ -75,92 +66,11 @@
           <h3>Osmolarity Calculator</h3>
           <p>Calculate serum and urine osmolarity quickly.</p>
           <div class="actions">
-            <a class="btn open-link" data-key="osmolarity" href="https://PediatricPharmacyToolkit.github.io/osmolarity-calculator" target="_blank" rel="noopener">Open</a>
-            <button class="ghost edit-btn" data-key="osmolarity">Edit</button>
+            <a class="btn open-link" data-key="osmolarity" href="osmolarity-calculator.html" target="_blank" rel="noopener">Open</a>
           </div>
         </article>
       </section>
 
-      <footer>
-        Links are editable and persisted in your browser. To reset, clear site data.
-      </footer>
     </main>
-
-    <script>
-      (function(){
-        const defaults = {
-          arginine: 'https://PediatricPharmacyToolkit.github.io/arginine-calculator',
-          gir: 'https://PediatricPharmacyToolkit.github.io/gir-calculator',
-          hypernatremia: 'https://PediatricPharmacyToolkit.github.io/hypernatremia-calc',
-          osmolarity: 'https://PediatricPharmacyToolkit.github.io/osmolarity-calculator'
-        };
-
-        function loadLinks(){
-          Object.keys(defaults).forEach(key=>{
-            const stored = localStorage.getItem('ppt_link_'+key);
-            const url = stored || defaults[key];
-            const open = document.querySelector('.open-link[data-key="'+key+'"]');
-            if(open) open.href = url;
-          });
-        }
-
-        function mkInputActions(openEl, key, parent){
-          const wrapper = document.createElement('div');
-          wrapper.style.display = 'flex';
-          wrapper.style.gap = '0.5rem';
-          wrapper.style.width = '100%';
-
-          const input = document.createElement('input');
-          input.className = 'url-input';
-          input.type = 'url';
-          input.value = openEl.href;
-          input.style.flex = '1';
-
-          const save = document.createElement('button');
-          save.className = 'btn';
-          save.textContent = 'Save';
-
-          const cancel = document.createElement('button');
-          cancel.className = 'ghost';
-          cancel.textContent = 'Cancel';
-
-          wrapper.appendChild(input);
-          wrapper.appendChild(save);
-          wrapper.appendChild(cancel);
-
-          parent.appendChild(wrapper);
-          input.focus();
-
-          save.addEventListener('click', ()=>{
-            const v = input.value.trim();
-            if(!v){ alert('Please enter a URL'); return; }
-            openEl.href = v;
-            localStorage.setItem('ppt_link_'+key, v);
-            wrapper.remove();
-            parent.querySelector('.edit-btn').style.display = '';
-          });
-
-          cancel.addEventListener('click', ()=>{
-            wrapper.remove();
-            parent.querySelector('.edit-btn').style.display = '';
-          });
-        }
-
-        document.addEventListener('DOMContentLoaded', ()=>{
-          loadLinks();
-          document.querySelectorAll('.edit-btn').forEach(btn=>{
-            btn.addEventListener('click', ()=>{
-              const key = btn.dataset.key;
-              const openEl = document.querySelector('.open-link[data-key="'+key+'"]');
-              const parent = btn.parentNode;
-              if(btn.dataset.editing==='1') return;
-              btn.dataset.editing='1';
-              btn.style.display = 'none';
-              mkInputActions(openEl, key, parent);
-            });
-          });
-        });
-      })();
-    </script>
   </body>
 </html>

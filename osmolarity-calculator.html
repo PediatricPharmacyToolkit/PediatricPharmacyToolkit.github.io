@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pediatric Pharmacy Toolkit – Osmolarity Builder</title>
+
+<style>
+  :root{
+    --bg:#f7e4c9;
+    --card:#fff;
+    --accent:#1f3c5a;
+    --muted:#555;
+    --divider: rgba(0,0,0,0.08);
+    --divider-strong: rgba(0,0,0,0.18);
+  }
+
+  html, body{
+    margin:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:var(--bg);
+    color:var(--accent);
+  }
+
+  body{
+    background-image:url("banner.png");
+    background-size:cover;
+    background-repeat:no-repeat;
+    background-position:center;
+    background-attachment:fixed;
+  }
+
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:rgba(247,228,201,0.55);
+    pointer-events:none;
+    z-index:0;
+  }
+
+  main{
+    max-width:1200px;
+    margin:0 auto;
+    padding:16px;
+    position:relative;
+    z-index:1;
+  }
+
+  h1{
+    text-align:center;
+    font-size:1.4rem;
+    margin:16px 0 28px;
+    /* improve readability over busy banners without changing layout */
+    color: var(--accent);
+    font-weight:700;
+    text-shadow: 0 1px 0 rgba(255,255,255,0.9), 0 2px 8px rgba(0,0,0,0.5);
+    -webkit-text-stroke: 0.25px rgba(0,0,0,0.2);
+    position:relative;
+    z-index:2;
+  }
+
+  h1::before{
+    /* subtle translucent pill behind the header for legibility without affecting layout */
+    content: "";
+    position:absolute;
+    left:50%;
+    top:50%;
+    transform:translate(-50%,-50%);
+    width:calc(100% + 60px);
+    height:1.6em;
+    background:rgba(255,255,255,0.85);
+    border-radius:10px;
+    box-shadow:0 6px 18px rgba(0,0,0,0.12);
+    z-index:-1;
+  }
+
+  .grid{
+    display:grid;
+    gap:24px;
+    margin-bottom:24px;
+    align-items:start;
+  }
+
+  @media(min-width:900px){
+    .grid{
+      grid-template-columns:1fr 1fr;
+    }
+  }
+
+  .card{
+    background:var(--card);
+    padding:18px;
+    border-radius:14px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.12);
+    display:flex;
+    flex-direction:column;
+  }
+
+  .card-title{
+    font-weight:700;
+    font-size:1.05rem;
+    margin-bottom:16px;
+    text-align:center;
+  }
+
+  .input-row{
+    display:grid;
+    grid-template-columns:2.6fr 1fr 70px;
+    gap:10px;
+    align-items:center;
+    padding-bottom:10px;
+    margin-bottom:12px;
+    border-bottom:1px solid var(--divider);
+  }
+
+  .input-row:last-child{
+    margin-bottom:0;
+    padding-bottom:0;
+    border-bottom:none;
+  }
+
+  .no-divider{ margin-bottom:0; padding-bottom:0; border-bottom:none; }
+  .hidden-row{ display:none !important; }
+  .divider-line{ border-bottom:4px solid var(--divider-strong); margin:8px 0 12px 0; display:none; }
+  /* Force removal of the thin border for the TrophAmine row when thick divider is shown */
+  .macro-card .input-row.thick-divider{ border-bottom:none !important; margin-bottom:0; padding-bottom:0; }
+
+  input[type="number"], select{
+    width:100%;
+    padding:10px 12px;
+    border-radius:8px;
+    border:1px solid #ccc;
+    font-size:1rem;
+    box-sizing:border-box;
+  }
+
+  .dextrose-select{
+    width:55%;
+  }
+
+  input[type="number"]::-webkit-inner-spin-button,
+  input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  input[type="number"] {
+    -moz-appearance: textfield; /* Firefox */
+    appearance: textfield;      /* standard */
+  }
+
+  .unit{
+    font-size:0.85rem;
+    color:var(--muted);
+    white-space:nowrap;
+  }
+
+  .results-placeholder{
+    font-size:0.95rem;
+    line-height:1.5;
+    color:var(--muted);
+    text-align:center;
+    font-style:italic;
+  }
+
+  .spacer{
+    margin-bottom:32px;
+  }
+
+  .base-solution-card{
+    max-width:500px;
+    margin:0 0 32px 0;
+  }
+
+  .base-wrapper{ display:flex; align-items:center; justify-content:center; gap:16px; width:100%; margin-bottom:18px; }
+
+  .reset-col{ margin-left:12px; }
+
+  .toggle-col{ margin-right:12px; }
+
+  .toggle-btn{
+    background:#f0f0f0;
+    color:var(--accent);
+    border:1px solid #d0d0d0;
+    padding:12px 18px;
+    border-radius:12px;
+    font-size:0.95rem;
+    cursor:pointer;
+    box-shadow:0 2px 8px rgba(0,0,0,0.06);
+    white-space:nowrap;
+    min-width:200px;
+  }
+
+  .toggle-btn.active{
+    background:var(--accent);
+    color:#fff;
+    box-shadow:0 6px 18px rgba(31,60,90,0.18);
+  }
+
+  @media(max-width:700px){
+    .base-wrapper{ flex-direction:column; }
+    .toggle-col, .reset-col{ margin:8px 0; }
+    .toggle-btn, .reset-btn{ min-width:140px; }
+  }
+
+  .reset-btn{
+    background:var(--accent);
+    color:#fff;
+    border:none;
+    padding:14px 20px;
+    border-radius:12px;
+    font-size:1rem;
+    cursor:pointer;
+    box-shadow:0 6px 18px rgba(31,60,90,0.18);
+    white-space:nowrap;
+    align-self:center;
+    min-width:160px;
+  }
+
+  .reset-btn:active{ transform:translateY(1px); }
+
+  .lock-container input[type="checkbox"]{
+    transform:scale(1.5);
+    margin-left:6px;
+    cursor:pointer;
+  }
+
+  .tooltip {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    color: var(--accent);
+    font-weight: normal;
+    font-size:0.8rem;
+    margin-left:4px;
+  }
+
+  .tooltip .tooltiptext {
+    visibility: hidden;
+    width:280px;
+    background-color: var(--card);
+    color: var(--accent);
+    text-align:left;
+    border-radius:6px;
+    padding:10px;
+    border:1px solid #ccc;
+    box-shadow:0 2px 10px rgba(0,0,0,0.15);
+    position: fixed;
+    z-index: 1000;
+    font-size:0.85rem;
+    line-height:1.4;
+  }
+
+  .tooltip:hover .tooltiptext {
+    visibility: visible;
+    opacity: 1;
+  }
+
+  .macro-card .input-row{
+    border-bottom:1px solid var(--divider);
+  }
+
+  .macro-divider-strong{
+    border-bottom:4px solid var(--divider-strong) !important;
+  }
+
+  .additives-card .input-row{
+    border-bottom:1px solid var(--divider);
+  }
+
+  /* Specific override: allow marking individual rows to remove their divider */
+  .additives-card .input-row.no-divider,
+  .macro-card .input-row.no-divider{ border-bottom:none; margin-bottom:0; padding-bottom:0; }
+
+  .additives-card label{
+    font-size:0.9rem;
+    white-space:nowrap;
+  }
+  /* Results layout: three columns (osmoles | totals | volumes) */
+  .results-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr 1fr;
+    gap:12px;
+    align-items:start;
+    text-align:center;
+  }
+  .results-col{ background:transparent; padding:6px; }
+  .results-col.left{ text-align:left; }
+  .results-col.right{ text-align:right; }
+  .results-center{ font-weight:700; font-size:1rem; }
+  .final-osm{ font-size:1.4rem; color:var(--accent); }
+  .invalid-input{ border-color:#e74c3c !important; box-shadow:0 0 0 4px rgba(231,76,60,0.08); background:rgba(255,235,235,0.6); }
+</style>
+</head>
+
+<body>
+<main>
+
+<h1>Pediatric Pharmacy Toolkit – Osmolarity Builder</h1>
+
+<!-- (No blocking error modal) -->
+
+<!-- BASE SOLUTION -->
+<div class="base-wrapper">
+  <div class="toggle-col">
+    <button id="toggleExpandedBtn" class="toggle-btn" aria-pressed="false" title="Show expanded options?">Show expanded options? — NO</button>
+  </div>
+  <section class="card base-solution-card">
+    <div class="card-title">🧪 Base Solution</div>
+    <div class="input-row">
+      <select id="baseSelect">
+      <option value="">Select base solution</option>
+      <option>Sterile Water</option>
+      <option>0.9% NaCl</option>
+      <option>0.45% NaCl</option>
+      <option>D5</option>
+      <option>D5 NS</option>
+      <option>D5 LR</option>
+      <option>D5 1/2 NS</option>
+      <option>D5 1/4 NS</option>
+      <option>D10</option>
+      <option>D10 1/2 NS</option>
+      <option>D10 1/4 NS</option>
+      <option>D20</option>
+      <option>Lactated Ringer’s</option>
+      <option>PlasmaLyte</option>
+    </select>
+    <input type="number" id="baseVolume">
+    <span class="unit">mL</span>
+      </div>
+
+    <div class="lock-container">
+      <label style="display:flex;align-items:center;gap:6px;">
+        Lock total solution volume to this volume
+        <span class="tooltip">(What does this mean❓)
+          <span class="tooltiptext">
+            When this box is checked the final volume of the solution will equal the entered base solution volume above.<br><br>
+            The volume of additives will be subtracted from the base solution to maintain the locked-in volume total rather than additives contributing to the total volume of solution.<br><br>
+            (i.e. tell this tool if you're injecting additives into a premixed bag as additional volume or preparing a solution with a specific "locked in" volume in mind [QS to a desired volume])
+          </span>
+        </span>
+        <input type="checkbox" id="lockVolume">
+      </label>
+    </div>
+  </section>
+
+  <div class="reset-col">
+    <button id="resetButton" class="reset-btn" title="Reset all inputs">Reset All Inputs</button>
+  </div>
+
+</div>
+
+<section class="grid">
+
+  <!-- MACRONUTRIENTS -->
+  <section class="card macro-card">
+    <div class="card-title">🍞 Macronutrients</div>
+
+    <div class="input-row macro-divider-strong">
+      <select class="dextrose-select" id="dextroseSelect">
+        <option value="5">Dextrose 5%</option>
+        <option value="10">Dextrose 10%</option>
+        <option value="20">Dextrose 20%</option>
+        <option value="25">Dextrose 25%</option>
+        <option value="50">Dextrose 50%</option>
+        <option value="70" selected>Dextrose 70%</option>
+      </select>
+      <input type="number" id="dextroseGrams">
+      <span class="unit">grams</span>
+    </div>
+
+    <div class="input-row"><label>Amino Acid 10% (TrophAmine ®)</label><input type="number" id="aaTroph"><span class="unit">grams</span></div>
+    <div class="divider-line" aria-hidden="true"></div>
+    <div class="input-row"><label>Amino Acid 10% (Travasol ®)</label><input type="number" id="aaTravasol"><span class="unit">grams</span></div>
+    <div class="input-row"><label>Amino Acid 10% (Aminosyn II ®)</label><input type="number" id="aaAminosyn"><span class="unit">grams</span></div>
+    <div class="input-row"><label>Amino Acid 15% (e.g. Aminosyn II ®)</label><input type="number" id="aa15"><span class="unit">grams</span></div>
+    <div class="input-row"><label>Amino Acid 20% (e.g. Prosol ®)</label><input type="number" id="aa20"><span class="unit">grams</span></div>
+    <div class="input-row macro-divider-strong"><label>Hepatamine 8% amino acid</label><input type="number" id="hepatamine"><span class="unit">grams</span></div>
+
+    <div class="input-row"><label>Intralipid 20%</label><input type="number" id="intralipid"><span class="unit">mL</span></div>
+    <div class="input-row"><label>Omegaven 10%</label><input type="number" id="omegaven"><span class="unit">mL</span></div>
+    <div class="input-row no-divider"><label>SMOFlipid 20%</label><input type="number" id="smoflipid"><span class="unit">mL</span></div>
+  </section>
+
+  <!-- ADDITIVES -->
+  <section class="card additives-card">
+    <div class="card-title">🧂 Additives</div>
+
+    <div class="input-row"><label>Calcium Gluconate 10% (1 gram = 4.65 mEq / 10 mL)</label><input type="number" id="caGlu"><span class="unit">mL</span></div>
+    <div class="input-row"><label>Calcium Chloride 10% (1 gram = 13.6 mEq / 10 mL)</label><input type="number" id="caCl"><span class="unit">mL</span></div>
+    <div class="input-row"><label>Magnesium Sulfate (MgSO₄) (0.5 grams / mL)</label><input type="number" id="mgSulf"><span class="unit">mL</span></div>
+    <div class="input-row"><label>Multi-trace Elements (MTE-4 or MTE-5)</label><input type="number" id="mte"><span class="unit">mL</span></div>
+    <div class="input-row"><label>Multivitamin 12 Infusion (Concentrate)</label><input type="number" id="mvi"><span class="unit">mL</span></div>
+    <div class="input-row"><label>Potassium Acetate (2 mEq / mL)</label><input type="number" id="kAcetate"><span class="unit">mL</span></div>
+    <div class="input-row"><label>Potassium Chloride (KCl) (2 mEq / mL)</label><input type="number" id="kCl"><span class="unit">mL</span></div>
+    <div class="input-row"><label>Potassium Phosphate (3 mmol P – 4.4 mEq K / mL)</label><input type="number" id="kPhos"><span class="unit">mL</span></div>
+    <div class="input-row"><label>Sodium Acetate (2 mEq / mL)</label><input type="number" id="naAcetate"><span class="unit">mL</span></div>
+    <div class="input-row"><label>Sodium Bicarbonate 4.2% (0.5 mEq / mL)</label><input type="number" id="naBicarb42"><span class="unit">mL</span></div>
+    <div class="input-row"><label>Sodium Bicarbonate 7.5% (0.9 mEq / mL)</label><input type="number" id="naBicarb75"><span class="unit">mL</span></div>
+  </section>

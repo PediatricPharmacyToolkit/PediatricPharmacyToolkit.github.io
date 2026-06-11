@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pediatric Pharmacy Toolkit</title>
+
+<style>
+  :root{
+    --bg:#f7e4c9;
+    --card:#fff;
+    --accent:#1f3c5a;
+    --muted:#555;
+  }
+
+  html,body{
+    margin:0;
+    font-family:Arial,Helvetica,sans-serif;
+    background:var(--bg);
+    color:var(--accent);
+  }
+
+  /* Use banner.png as page background */
+  body{
+    background-image:url("banner.png");
+    background-size:cover;
+    background-position:center;
+    background-attachment:fixed;
+  }
+
+  /* Soft overlay for readability */
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background:rgba(247, 228, 201, 0.55); /* matches --bg with transparency */
+    pointer-events:none;
+    z-index:0;
+  }
+
+  /* Keep banner in markup but hide it */
+  .banner{
+    display:none;
+  }
+
+  main{
+    max-width:1100px;
+    margin:0 auto;
+    padding:16px;
+    position:relative; /* ensure content sits above overlay */
+    z-index:1;
+  }
+
+  h1{
+    text-align:center;
+    font-size:1.4rem;
+    margin:16px 0 20px;
+  }
+
+  /* GRID */
+  .layout{
+    display:grid;
+    grid-template-columns: 1fr;
+    gap:20px;
+  }
+
+  @media(min-width:900px){
+    .layout{
+      grid-template-columns: 440px 440px; /* widened right column */
+      justify-content:center;
+    }
+  }
+
+  .card{
+    background:var(--card);
+    padding:16px;
+    border-radius:14px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.12);
+  }
+
+  .card-title{
+    font-weight:700;
+    font-size:1.05rem;
+    margin-bottom:10px;
+  }
+
+  .unit-toggle{
+    display:flex;
+    gap:16px;
+    margin-bottom:10px;
+    font-size:0.95rem;
+  }
+
+  input[type="number"]{
+    width:100%;
+    padding:10px 12px;
+    border-radius:8px;
+    border:1px solid #d0d0d0;
+    font-size:1rem;
+    box-sizing:border-box;
+  }
+
+  input::-webkit-outer-spin-button,
+  input::-webkit-inner-spin-button{
+    -webkit-appearance:none;
+    margin:0;
+  }
+  input[type=number]{-moz-appearance:textfield;}
+
+  .result-box{
+    background:var(--accent);
+    color:#fff;
+    padding:14px;
+    border-radius:12px;
+    text-align:center;
+    font-weight:700;
+    margin-top:14px;
+    font-size:1.15rem;
+  }
+
+  /* GIR EQUATION CARD */
+  .equation-card{
+    max-width:620px;
+    margin:0 auto 18px;
+    padding:12px 16px;
+  }
+
+  .equation{
+    text-align:center;
+    font-size:1rem;
+    margin-top:8px;
+  }
+
+  /* TABLE */
+  table{
+    width:100%;
+    border-collapse:collapse;
+    font-size:0.9rem;
+  }
+
+  th, td{
+    padding:8px 10px;
+    border-bottom:1px solid #e0e0e0;
+  }
+
+  th{
+    text-align:left;
+    font-weight:800;
+    color:var(--accent);
+    white-space:nowrap;
+  }
+
+  td:first-child{
+    font-weight:700;
+  }
+
+  .notes ul{
+    margin:0;
+    padding-left:20px;
+    font-size:0.95rem;
+    line-height:1.45;
+    color:var(--muted);
+  }
+</style>
+
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+
+<body>
+
+<div class="banner">
+  <img src="banner.png" alt="Pediatric Toolkit Banner">
+</div>
+
+<main>
+  <h1>Pediatric Pharmacy Toolkit – GIR Calculator</h1>
+
+  <!-- GIR Equation -->
+  <section class="card equation-card">
+    <div class="card-title">📐 GIR Equation</div>
+    <div class="equation">
+
+
+\[
+GIR \text{ (mg/kg/min)} = \frac{\text{IV Rate (mL/hr)} \cdot \text{Dextrose (g/dL)} \cdot \text{1000 (mg/g)}}
+{\text{Weight (kg)} \cdot \text{60 (min/hr)} \cdot \text{100 (mL/dL)}}
+\]
+
+
+    </div>
+  </section>
+
+  <div class="layout">
+
+    <!-- LEFT COLUMN -->
+    <div>
+
+      <section class="card">
+        <div class="card-title">⚖️ Weight (select units)</div>
+        <div class="unit-toggle">
+          <label><input type="radio" name="unit" value="kg" checked onchange="updateWeight(); calculateGIR();"> kg</label>
+          <label><input type="radio" name="unit" value="lb" onchange="updateWeight(); calculateGIR();"> lb</label>
+        </div>
+        <input id="weight" type="number" placeholder="kg" oninput="calculateGIR()">
+      </section>
+
+      <section class="card" style="margin-top:16px;">
+        <div class="card-title">🧁 Dextrose Percentage (%)</div>
+        <input id="dextrose" type="number" placeholder="%" oninput="calculateGIR()">
+      </section>
+
+      <section class="card" style="margin-top:16px;">
+        <div class="card-title">🫗 Infusion Rate (mL/hr)</div>
+        <input id="rate" type="number" placeholder="mL/hr" oninput="calculateGIR()">
+      </section>
+
+      <div id="girOut" class="result-box">GIR: — mg/kg/min</div>
+
+      <section class="card notes" style="margin-top:16px;">
+        <div class="card-title">💡 Helpful Notes & Tips</div>
+        <ul>
+          <li>Double-check units before adjusting therapy.</li>
+          <li>Typical neonatal GIR targets range from 4–8 mg/kg/min.</li>
+          <li>Monitor serum glucose closely when titrating.</li>
+          <li>Quick equation = (Dextrose % × mL/hr) ÷ (kilograms × 6).</li>
+        </ul>
+      </section>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div>
+      <section class="card">
+        <div class="card-title">📚 Dextrose Dosing Reference (mg/kg/min)</div>
+        <table>
+          <thead>
+            <tr>
+              <th>Population</th>
+              <th>Initiation</th>
+              <th>Advance by</th>
+              <th>Goal</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Preterm infants</td>
+              <td>4–6</td>
+              <td>1–2</td>
+              <td>6–8</td>
+            </tr>
+            <tr>
+              <td>Term infants</td>
+              <td>4–6</td>
+              <td>1–2</td>
+              <td>8–12</td>
+            </tr>
+            <tr>
+              <td>Children</td>
+              <td>3–5</td>
+              <td>1–2</td>
+              <td>5–8</td>
+            </tr>
+            <tr>
+              <td>Adolescents</td>
+              <td>2–4</td>
+              <td>1–2</td>
+              <td>4–6</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Citation Card placed directly under the dosing reference card -->
+      <section class="card" style="margin-top:16px;">
+        <div class="card-title">📖 Citation – ASPEN PN Guidelines</div>
+        <p style="font-size:0.95rem; line-height:1.45; color:var(--muted);">
+          Boullata JI, Guenter P, eds. <em>Appropriate Dosing for Parenteral Nutrition: ASPEN Recommendations</em>. 
+          American Society for Parenteral and Enteral Nutrition; 2020.  
+          <a href="https://nutritioncare.org/clinical-resources/parenteral-nutrition/" target="_blank">
+            https://nutritioncare.org/clinical-resources/parenteral-nutrition/
+          </a>
+        </p>
+      </section>
+    </div>
+
+  </div>
+</main>
+
+<script>
+function updateWeight(){
+  const unit = document.querySelector('input[name="unit"]:checked').value;
+  document.getElementById('weight').placeholder = unit;
+}
+
+function calculateGIR(){
+  let w = parseFloat(document.getElementById('weight').value);
+  const d = parseFloat(document.getElementById('dextrose').value);
+  const r = parseFloat(document.getElementById('rate').value);
+
+  if(!w || !d || !r){
+    document.getElementById('girOut').textContent = 'GIR: — mg/kg/min';
+    return;
+  }
+
+  const unit = document.querySelector('input[name="unit"]:checked').value;
+  if(unit === 'lb') w = w / 2.2;
+
+  const gir = (r * d * 1000) / (w * 60 * 100);
+  document.getElementById('girOut').textContent =
+    'GIR: ' + gir.toFixed(1) + ' mg/kg/min';
+}
+</script>
+
+</body>
+</html>
